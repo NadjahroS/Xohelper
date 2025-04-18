@@ -11,8 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -49,6 +47,7 @@ public class Main {
             // Takes a date from the html, then the title, takes the useful part and converts it to LocalDate format.
             if (page == 0) {
                 Element dateSpan = doc.selectFirst(".date");
+                assert dateSpan != null;
                 String dateTime = dateSpan.attr("title");
                 int dateIndex = dateTime.indexOf("@");
                 String date = dateTime.substring(0, dateIndex);
