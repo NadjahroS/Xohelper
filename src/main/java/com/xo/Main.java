@@ -25,7 +25,7 @@ public class Main {
     public static void main(String[] args) {
         try {
 //            gridGenerator.paintGrid();
-            gridGenerator.fillGrid();
+            gridGenerator.fillGrid("17-03-2025.txt");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

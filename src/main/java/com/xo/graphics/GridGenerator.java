@@ -5,6 +5,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class GridGenerator {
 
@@ -15,7 +18,15 @@ public class GridGenerator {
 
     public GridGenerator() {}
 
-    public void fillGrid() throws IOException {
+    /**
+     * Takes a empty grid and sets the graphics to red and thicker lines.
+     * Takes a text file and scans it into a arraylist.
+     * For each coordinate fills in a grid space with a red X at said coordinate.
+     * Saves the new file
+     * @param filename The filename to use as input for which grid coordinates ti fill
+     * @throws IOException
+     */
+    public void fillGrid(String filename) throws IOException {
         BufferedImage grid = null;
         grid = ImageIO.read(new File("src/output/grid.png"));
 
@@ -23,12 +34,26 @@ public class GridGenerator {
         graphics.setColor(Color.RED);
         graphics.setStroke(new BasicStroke(3));
 
-        graphics.drawLine(margin, margin, margin + cellSize, margin + cellSize);
-        graphics.drawLine(margin, margin + cellSize, margin + cellSize, margin);
+        File text = new File("src/output/" + filename);
+        Scanner scanner = new Scanner(text);
+        ArrayList<String> coordinates = new ArrayList<>();
+
+        while (scanner.hasNext()) {
+            coordinates.add(scanner.nextLine());
+        }
+
+        // For each coordinate it corrects the x and y by subtracting one
+        for (int i = 0; i < coordinates.size(); i++) {
+            int cellX = margin + (coordinates.get(i).charAt(0)-'A') * cellSize;
+            int cellY = margin + (Integer.parseInt(coordinates.get(i).substring(1))-1) * cellSize;
+
+            graphics.drawLine(cellX, cellY, cellX + cellSize, cellY + cellSize);
+            graphics.drawLine(cellX, cellY + cellSize, cellX + cellSize, cellY);
+        }
 
         graphics.dispose();
 
-        File file = new File("src/output/grid_filled.png");
+        File file = new File("src/output/" + filename + ".png");
         ImageIO.write(grid,"png", file);
     }
 
@@ -47,6 +72,7 @@ public class GridGenerator {
         graphics.setColor(Color.lightGray);
         graphics.fillRect(0, 0, width, height);
 
+        // Draws a 20x20 grid with legends
         graphics.setColor(Color.black);
         for (int i = 0; i <= 20; i++) {
             graphics.drawLine(margin, margin + (cellSize * i), width - 10, margin + (cellSize * i));
