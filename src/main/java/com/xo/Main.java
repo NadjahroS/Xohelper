@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import com.xo.graphics.GridGenerator;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -19,9 +20,16 @@ import org.jsoup.select.Elements;
 public class Main {
 
     static Utils utils = new Utils();
+    static GridGenerator gridGenerator = new GridGenerator();
 
     public static void main(String[] args) {
-        getHTML("https://steamcommunity.com/app/386180/eventcomments/510701184375390509?snr=2_9_100015_");
+        try {
+//            gridGenerator.paintGrid();
+            gridGenerator.fillGrid();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+//        getHTML("https://steamcommunity.com/app/386180/eventcomments/510701184375390509?snr=2_9_100015_");
     }
 
     public static void getHTML(String url) {
