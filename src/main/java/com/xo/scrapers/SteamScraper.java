@@ -19,7 +19,7 @@ public class SteamScraper {
 
     public SteamScraper() {}
 
-    public static void getHTML(String url) {
+    public void getHtml(String url) {
         org.jsoup.nodes.Document doc = null;
         BufferedWriter writer = null;
 
@@ -31,6 +31,7 @@ public class SteamScraper {
 
         try {
             while (true) {
+                System.out.println(page);
                 // Reset url and append next comment page
                 if (page > 0) {
                     url = baseUrl;
@@ -49,7 +50,7 @@ public class SteamScraper {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM, yyyy", Locale.ENGLISH);
                     String localDate = LocalDate.parse(date.trim(), formatter).format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
 
-                    File outputFile = new File("src/output", (localDate + ".txt"));
+                    File outputFile = new File("src/output", ("steam-" + localDate + ".txt"));
                     writer = new BufferedWriter(new FileWriter(outputFile));
                     // System.out.println(localDate);
                 }
