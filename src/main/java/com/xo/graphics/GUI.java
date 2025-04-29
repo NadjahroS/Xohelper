@@ -20,14 +20,28 @@ public class GUI extends JFrame{
     public GUI() {
         setContentPane(main);
         setTitle("Crossout Helper");
-        setSize(720,720);
+        setSize(800,800);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
+
+        // Check installed looks and feels
+        UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
+        for (UIManager.LookAndFeelInfo look : looks) {
+            System.out.println(look.getClassName());
+        }
+
+        // Set and update look and feel
+        try {
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+        } catch (ClassNotFoundException | UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(e);
+        }
+        SwingUtilities.updateComponentTreeUI(main);
 
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                System.out.println(urlField.getText());
             }
         });
     }
