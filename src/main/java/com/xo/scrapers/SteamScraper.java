@@ -1,10 +1,13 @@
 package com.xo.scrapers;
 
 import com.xo.Utils;
+import com.xo.graphics.GridGenerator;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -12,13 +15,28 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.List;
 
 public class SteamScraper {
 
     static Utils utils = new Utils();
+    static GridGenerator gridGenerator = new GridGenerator();
 
-    public SteamScraper() {}
+    private JTextArea progressText;
+    private String filename;
 
+    public SteamScraper(JTextArea progressText) {
+        this.progressText = progressText;
+    }
+
+    public SteamScraper() {
+    }
+
+    /**
+     * Web-scraper for comments from the Steam Crossout find the treasure contests,
+     *
+     * @param url The Steam url to be scraped
+     */
     public void getHtml(String url) {
         org.jsoup.nodes.Document doc = null;
         BufferedWriter writer = null;
@@ -31,33 +49,42 @@ public class SteamScraper {
 
         try {
             while (true) {
-                System.out.println(page);
+//                progressText.append("Checking page: " + page);
+//                progressText.append("\n");
+                System.out.println("Checking page: " + page);
                 // Reset url and append next comment page
                 if (page > 0) {
                     url = baseUrl;
-                    url += ("&ctp=" + page);
+                    url += ("?ctp=" + page);
                 }
 
                 doc = Jsoup.connect(url).userAgent("Mozilla").data("name", "jsoup").get();
+//              System.out.println(doc);
 
                 // Takes a date from the html, then the title, takes the useful part and converts it to LocalDate format.
                 if (page == 0) {
                     Element dateSpan = doc.selectFirst(".date");
-                    assert dateSpan != null;
+                    if (dateSpan == null) {
+//                        progressText.append("Date not found");
+                        return;
+                    }
                     String dateTime = dateSpan.attr("title");
                     int dateIndex = dateTime.indexOf("@");
                     String date = dateTime.substring(0, dateIndex);
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM, yyyy", Locale.ENGLISH);
                     String localDate = LocalDate.parse(date.trim(), formatter).format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
 
-                    File outputFile = new File("src/output", ("steam-" + localDate + ".txt"));
+                    filename = "steam-" + localDate + ".txt";
+                    File outputFile = new File("src/output/", ("steam-" + localDate + ".txt"));
                     writer = new BufferedWriter(new FileWriter(outputFile));
                     // System.out.println(localDate);
                 }
 
                 // Takes all comments from the html, stops the program if there are no comments left
                 Elements comments = doc.select(".commentthread_comment_text");
-                if (comments.size() == 0) {
+                if (comments.isEmpty()) {
+//                    progressText.append("\\u001B[31mNo comments found");
+                    System.out.println("No more comments");
                     break;
                 }
                 coordinates.addAll(utils.getCoordinates(comments));
@@ -100,8 +127,18 @@ public class SteamScraper {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            try {
+                gridGenerator.fillGrid(filename);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 //            System.out.println(sortedCoordinates);
         }
         // System.out.println(doc);
+    }
+
+    public String getFilename() {
+        return filename;
     }
 }
