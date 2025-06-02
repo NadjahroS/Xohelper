@@ -4,6 +4,7 @@ import org.apache.commons.imaging.Imaging;
 import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
 import org.apache.commons.imaging.formats.png.PngImageMetadata;
+import org.apache.commons.imaging.formats.tiff.TiffField;
 import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 import org.apache.commons.imaging.formats.tiff.constants.ExifTagConstants;
 import org.apache.commons.imaging.formats.tiff.write.TiffOutputDirectory;
@@ -19,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class GridGenerator {
@@ -70,30 +72,27 @@ public class GridGenerator {
 
         graphics.dispose();
 
-        File file = new File("src/output/" + filename.replace(".txt", "") + ".png");
-        ImageIO.write(grid,"png", file);
+        File file = new File("src/output/" + filename.replace(".txt", "") + ".jpeg");
+        ImageIO.write(grid,"jpeg", file);
 
         readMetaData(file);
     }
 
     public void readMetaData(File image) throws IOException {
         ImageMetadata metadata = Imaging.getMetadata(image);
-        PngImageMetadata jpegImageMetadata = (PngImageMetadata) metadata;
-        TiffOutputSet outputSet = null;
+        JpegImageMetadata jpegImageMetadata = (JpegImageMetadata) metadata;
         if (metadata != null) {
             TiffImageMetadata exif = jpegImageMetadata.getExif();
             if (exif != null) {
-                outputSet = exif.getOutputSet();
-                System.out.println(outputSet);
+                List<TiffField> fields = exif.getAllFields();
+                for (TiffField field : fields) {
+                    System.out.println(field.getTagName() + ": " + field.getValueDescription());
+                }
             } else {
                 System.out.println("No exif");
-                outputSet = new TiffOutputSet();
-                TiffOutputDirectory exifDirectory = outputSet.getOrCreateExifDirectory();
 //                exifDirectory.add(ExifTagConstants.);
             }
         }
-
-
     }
 
     /**
@@ -126,7 +125,7 @@ public class GridGenerator {
 
         graphics.dispose();
 
-        File file = new File("src/output/grid.png");
-        ImageIO.write(grid,"png", file);
+        File file = new File("src/output/grid.jpeg");
+        ImageIO.write(grid,"jpeg", file);
     }
 }
