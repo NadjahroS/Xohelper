@@ -3,23 +3,21 @@ package com.xo.graphics;
 import org.apache.commons.imaging.Imaging;
 import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
-import org.apache.commons.imaging.formats.png.PngImageMetadata;
+import org.apache.commons.imaging.formats.jpeg.exif.ExifRewriter;
 import org.apache.commons.imaging.formats.tiff.TiffField;
 import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 import org.apache.commons.imaging.formats.tiff.constants.ExifTagConstants;
 import org.apache.commons.imaging.formats.tiff.write.TiffOutputDirectory;
 import org.apache.commons.imaging.formats.tiff.write.TiffOutputSet;
+import org.apache.commons.imaging.formats.tiff.constants.TiffTagConstants;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -42,11 +40,11 @@ public class GridGenerator {
      */
     public void fillGrid(String filename) throws IOException {
         BufferedImage grid = null;
-        grid = ImageIO.read(new File("src/output/grid.png"));
+        grid = ImageIO.read(new File("src/output/grid.jpeg"));
 
         if (grid == null) {
             paintGrid();
-            grid = ImageIO.read(new File("src/output/grid.png"));
+            grid = ImageIO.read(new File("src/output/grid.jpeg"));
         }
 
         Graphics2D graphics = grid.createGraphics();
@@ -74,24 +72,58 @@ public class GridGenerator {
 
         File file = new File("src/output/" + filename.replace(".txt", "") + ".jpeg");
         ImageIO.write(grid,"jpeg", file);
-
-        readMetaData(file);
     }
 
-    public void readMetaData(File image) throws IOException {
+    public void editMetadata(String file, String url, int pages) throws IOException {
+        File image = new File(file);
         ImageMetadata metadata = Imaging.getMetadata(image);
         JpegImageMetadata jpegImageMetadata = (JpegImageMetadata) metadata;
+        TiffOutputSet outputSet = null;
+
         if (metadata != null) {
             TiffImageMetadata exif = jpegImageMetadata.getExif();
             if (exif != null) {
+                outputSet = exif.getOutputSet();
                 List<TiffField> fields = exif.getAllFields();
                 for (TiffField field : fields) {
                     System.out.println(field.getTagName() + ": " + field.getValueDescription());
                 }
             } else {
                 System.out.println("No exif");
-//                exifDirectory.add(ExifTagConstants.);
             }
+        } else {
+            System.out.println("Metadata is null");
+        }
+
+        // Create empty exif metadataset if there's none
+        if (outputSet == null) {
+            outputSet = new TiffOutputSet();
+        }
+
+        // Root directory for basic fields like Software and Make
+        TiffOutputDirectory rootDirectory = outputSet.getOrCreateRootDirectory();
+        rootDirectory.removeField(TiffTagConstants.TIFF_TAG_SOFTWARE);
+        rootDirectory.add(TiffTagConstants.TIFF_TAG_SOFTWARE, "XoHelper");
+
+        rootDirectory.removeField(TiffTagConstants.TIFF_TAG_MAKE);
+        rootDirectory.add(TiffTagConstants.TIFF_TAG_ARTIST, "Nadjahro");
+
+//        TiffOutputDirectory exifDirectory = outputSet.getOrCreateRootDirectory();
+//        exifDirectory.removeField(TiffTagConstants.TIFF_TAG_IMAGE_DESCRIPTION);
+//        exifDirectory.add(TiffTagConstants.TIFF_TAG_IMAGE_DESCRIPTION, url + ";" + pages + ";");
+
+        TiffOutputDirectory exifDirectory = outputSet.getOrCreateExifDirectory();
+        exifDirectory.removeField(ExifTagConstants.EXIF_TAG_USER_COMMENT);
+        exifDirectory.add(ExifTagConstants.EXIF_TAG_USER_COMMENT, url + ";" + pages + ";");
+
+        File tempFile = new File(image.getParent(), "temp_" + image.getName());
+        FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
+        OutputStream outputStream = new BufferedOutputStream(fileOutputStream);
+
+        new ExifRewriter().updateExifMetadataLossless(image, outputStream, outputSet);
+
+        if (!image.delete() || !tempFile.renameTo(image)) {
+            throw new IOException("Failed to overwrite original image with updated EXIF data.");
         }
     }
 

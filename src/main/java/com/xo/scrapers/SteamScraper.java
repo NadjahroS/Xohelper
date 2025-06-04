@@ -74,7 +74,7 @@ public class SteamScraper {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM, yyyy", Locale.ENGLISH);
                     String localDate = LocalDate.parse(date.trim(), formatter).format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
 
-                    filename = "steam-" + localDate + ".txt";
+                    filename = "steam-" + localDate;
                     File outputFile = new File("src/output/", ("steam-" + localDate + ".txt"));
                     writer = new BufferedWriter(new FileWriter(outputFile));
                     // System.out.println(localDate);
@@ -129,7 +129,8 @@ public class SteamScraper {
             }
 
             try {
-                gridGenerator.fillGrid(filename);
+                gridGenerator.fillGrid(filename + ".txt");
+                gridGenerator.editMetadata("src/output/" + filename + ".jpeg", baseUrl, page);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
