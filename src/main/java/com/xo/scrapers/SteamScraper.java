@@ -48,9 +48,9 @@ public class SteamScraper {
         Set<String> coordinates = new HashSet<>();
 
         try {
-//            while (true) {
-//                progressText.append("Checking page: " + page);
-//                progressText.append("\n");
+            while (true) {
+                progressText.append("Checking page: " + page);
+                progressText.append("\n");
                 System.out.println("Checking page: " + page);
                 // Reset url and append next comment page
                 if (page > 1) {
@@ -65,7 +65,7 @@ public class SteamScraper {
                 if (page == 1) {
                     Element dateSpan = doc.selectFirst(".date");
                     if (dateSpan == null) {
-//                        progressText.append("Date not found");
+                        progressText.append("Date not found");
                         return;
                     }
                     String dateTime = dateSpan.attr("title");
@@ -83,9 +83,9 @@ public class SteamScraper {
                 // Takes all comments from the html, stops the program if there are no comments left
                 Elements comments = doc.select(".commentthread_comment_text");
                 if (comments.isEmpty()) {
-//                    progressText.append("\\u001B[31mNo comments found");
-                    System.out.println("No more comments");
-//                    break;
+                    progressText.append("Page:" + page + "had no more comments");
+                    System.out.println("Page:" + page + "had no more comments");
+                    break;
                 }
                 coordinates.addAll(utils.getCoordinates(comments));
 //                System.out.println(coordinates);
@@ -99,10 +99,10 @@ public class SteamScraper {
                 //     // writer.write(username);
                 //     // writer.newLine();
                 //     System.out.println("Username " + (i+1) + ": " + username.trim().toUpperCase());
-                // }
+//                 }
                 page++;
                 Thread.sleep(4000);
-//            }
+            }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
