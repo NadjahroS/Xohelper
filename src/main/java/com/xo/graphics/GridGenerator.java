@@ -91,8 +91,8 @@ public class GridGenerator {
             } else {
                 System.out.println("No exif");
             }
-        } else {
-            System.out.println("Metadata is null");
+//        } else {
+//            System.out.println("Metadata is null");
         }
 
         // Create empty exif metadataset if there's none

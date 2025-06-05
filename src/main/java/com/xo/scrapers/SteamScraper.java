@@ -41,19 +41,19 @@ public class SteamScraper {
         org.jsoup.nodes.Document doc = null;
         BufferedWriter writer = null;
 
-        int page = 0;
+        int page = 1;
         String baseUrl = url;
 
         // Using set instead of array for automatic duplicate removal
         Set<String> coordinates = new HashSet<>();
 
         try {
-            while (true) {
+//            while (true) {
 //                progressText.append("Checking page: " + page);
 //                progressText.append("\n");
                 System.out.println("Checking page: " + page);
                 // Reset url and append next comment page
-                if (page > 0) {
+                if (page > 1) {
                     url = baseUrl;
                     url += ("?ctp=" + page);
                 }
@@ -62,7 +62,7 @@ public class SteamScraper {
 //              System.out.println(doc);
 
                 // Takes a date from the html, then the title, takes the useful part and converts it to LocalDate format.
-                if (page == 0) {
+                if (page == 1) {
                     Element dateSpan = doc.selectFirst(".date");
                     if (dateSpan == null) {
 //                        progressText.append("Date not found");
@@ -85,7 +85,7 @@ public class SteamScraper {
                 if (comments.isEmpty()) {
 //                    progressText.append("\\u001B[31mNo comments found");
                     System.out.println("No more comments");
-                    break;
+//                    break;
                 }
                 coordinates.addAll(utils.getCoordinates(comments));
 //                System.out.println(coordinates);
@@ -102,7 +102,7 @@ public class SteamScraper {
                 // }
                 page++;
                 Thread.sleep(4000);
-            }
+//            }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
@@ -124,17 +124,13 @@ public class SteamScraper {
                     }
                     writer.close();
                 }
+
+                gridGenerator.fillGrid(filename + ".txt");
+                gridGenerator.editMetadata("src/output/" + filename + ".jpeg", baseUrl, page-1);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            try {
-                gridGenerator.fillGrid(filename + ".txt");
-                gridGenerator.editMetadata("src/output/" + filename + ".jpeg", baseUrl, page);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-//            System.out.println(sortedCoordinates);
+//          System.out.println(sortedCoordinates);
         }
         // System.out.println(doc);
     }

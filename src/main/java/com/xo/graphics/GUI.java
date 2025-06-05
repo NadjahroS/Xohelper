@@ -54,7 +54,7 @@ public class GUI extends JFrame {
             System.out.println(urlField.getText());
 //            progressText.append("\n");
             steamScraper.getHtml(urlField.getText());
-            loadImages();
+            addImage(steamScraper.getFilename());
         });
 
         imageSelector.addActionListener(new ActionListener() {
@@ -70,7 +70,6 @@ public class GUI extends JFrame {
         setVisible(true);
     }
 
-
     /**
      * Searches the output map for images.
      * For each image found, it's added to the dropdown menu.
@@ -81,12 +80,12 @@ public class GUI extends JFrame {
 
         try {
             Files.createDirectories(outputPath);
-            DirectoryStream<Path> directoryStream = Files.newDirectoryStream(outputPath, "*.png");
+            DirectoryStream<Path> directoryStream = Files.newDirectoryStream(outputPath, "*.jpeg");
 
             for (Path path : directoryStream) {
-                BufferedImage img = ImageIO.read(path.toFile());
-                if (img != null) {
-                    images.add(img);
+                BufferedImage image = ImageIO.read(path.toFile());
+                if (image != null) {
+                    images.add(image);
                     imageSelector.addItem(path.getFileName().toString());
                 }
             }
@@ -100,6 +99,26 @@ public class GUI extends JFrame {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Gets the image from a filename and adds it to the list of images and selector menu
+     * Sets the new image as selected in the dropdown menu and in the image space
+     * @param filename The new single file to be added
+     */
+    public void addImage(String filename) {
+        try {
+            BufferedImage image = null;
+            image = ImageIO.read(new File("src/output/" + filename + ".jpeg"));
+            images.add(image);
+            imageSelector.addItem(filename + ".jpeg");
+
+            imageSelector.setSelectedItem(filename + ".jpeg");
+            imageLabel.setIcon(new ImageIcon(image));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     public JTextArea getProgressText() {
