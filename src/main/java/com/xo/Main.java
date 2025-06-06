@@ -10,12 +10,12 @@ import com.xo.scrapers.SteamScraper;
 
 public class Main {
 
-    static GridGenerator gridGenerator = new GridGenerator();
-    static RedditScraper redditScraper = new RedditScraper();
-    static SteamScraper steamScraper = new SteamScraper();
+//    static GridGenerator gridGenerator = new GridGenerator();
+//    static RedditScraper redditScraper = new RedditScraper();
+//    static SteamScraper steamScraper = new SteamScraper();
 
     public static void main(String[] args) {
-        GUI gui = new GUI();
+        new GUI();
 
 //        steamScraper.getHtml("https://steamcommunity.com/app/386180/eventcomments/598528021200225035_");
 //        steamScraper.getHtml("https://steamcommunity.com/app/386180/eventcomments/599642060902915490");
