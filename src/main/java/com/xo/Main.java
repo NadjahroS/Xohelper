@@ -10,9 +10,9 @@ import com.xo.scrapers.SteamScraper;
 
 public class Main {
 
-//    static GridGenerator gridGenerator = new GridGenerator();
-//    static RedditScraper redditScraper = new RedditScraper();
-//    static SteamScraper steamScraper = new SteamScraper();
+    static GridGenerator gridGenerator = new GridGenerator();
+    static RedditScraper redditScraper = new RedditScraper();
+    static SteamScraper steamScraper = new SteamScraper();
 
     public static void main(String[] args) {
         new GUI();
@@ -21,12 +21,12 @@ public class Main {
 //        steamScraper.getHtml("https://steamcommunity.com/app/386180/eventcomments/599642060902915490");
 //        redditScraper.getHtml("https://www.reddit.com/r/Crossout/comments/1ivgcvy/find_a_treasure/");
 
-//        try {
-//            gridGenerator.editMetadata("src/output/steam-15-11-2024.jpeg", "", 10);
+        try {
+            gridGenerator.editMetadata("src/output/steam-15-11-2024.jpeg", "test.com", 10);
 //            gridGenerator.paintGrid();
 //            gridGenerator.fillGrid("steam-15-11-2024.txt");
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

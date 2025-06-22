@@ -1,6 +1,12 @@
 package com.xo.graphics;
 
 import com.xo.scrapers.SteamScraper;
+import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.common.ImageMetadata;
+import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
+import org.apache.commons.imaging.formats.tiff.TiffField;
+import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
+import org.apache.commons.imaging.formats.tiff.constants.ExifTagConstants;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -22,6 +28,7 @@ public class GUI extends JFrame {
     private JLabel title;
     private JTextArea progressText;
     private JComboBox<String> imageSelector;
+    private JButton updateButton;
 
     private final JLabel imageLabel = new JLabel();
     private final List<BufferedImage> images = new ArrayList<>();
@@ -46,14 +53,12 @@ public class GUI extends JFrame {
         // Set layout and add image label
         image.setLayout(new BorderLayout());
         image.add(imageLabel, BorderLayout.CENTER);
-
         loadImages();
 
         startButton.addActionListener(e -> {
-            // Placeholder for scraper trigger
             System.out.println(urlField.getText());
-//            progressText.append("\n");
-            steamScraper.getHtml(urlField.getText());
+            progressText.append("Checking url...");
+            steamScraper.getCoordinates(urlField.getText());
             addImage(steamScraper.getFilename());
         });
 
@@ -67,7 +72,19 @@ public class GUI extends JFrame {
             }
         });
 
+
         setVisible(true);
+        updateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println(imageSelector.getSelectedItem());
+                try {
+                    readMetadata(imageSelector.getSelectedItem());
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
     }
 
     /**
@@ -118,14 +135,29 @@ public class GUI extends JFrame {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    public void readMetadata(Object file) throws IOException {
+        File image = new File("src/output/" + file);
+        ImageMetadata metadata = Imaging.getMetadata(image);
+        JpegImageMetadata jpegImageMetadata = (JpegImageMetadata) metadata;
+
+        if (metadata != null) {
+            TiffImageMetadata exif = jpegImageMetadata.getExif();
+            if (exif != null) {
+                List<TiffField> fields = exif.getAllFields();
+                for (TiffField field : fields) {
+                    System.out.println(field.getTagName() + ": " + field.getValueDescription());
+                    if (field.getTag() == ExifTagConstants.EXIF_TAG_USER_COMMENT.tag) {
+                        System.out.println("✅ Found USER_COMMENT: " + field.getValueDescription().substring(9));
+                    }
+//                    System.out.println(field.getTagName());
+                }
+            }
+        }
     }
 
     public JTextArea getProgressText() {
         return progressText;
-    }
-
-    public void setProgressText(JTextArea progressText) {
-        this.progressText = progressText;
     }
 }

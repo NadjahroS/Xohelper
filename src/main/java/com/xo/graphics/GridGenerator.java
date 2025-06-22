@@ -105,16 +105,17 @@ public class GridGenerator {
         rootDirectory.removeField(TiffTagConstants.TIFF_TAG_SOFTWARE);
         rootDirectory.add(TiffTagConstants.TIFF_TAG_SOFTWARE, "XoHelper");
 
-        rootDirectory.removeField(TiffTagConstants.TIFF_TAG_MAKE);
+        rootDirectory.removeField(TiffTagConstants.TIFF_TAG_ARTIST);
         rootDirectory.add(TiffTagConstants.TIFF_TAG_ARTIST, "Nadjahro");
 
-//        TiffOutputDirectory exifDirectory = outputSet.getOrCreateRootDirectory();
-//        exifDirectory.removeField(TiffTagConstants.TIFF_TAG_IMAGE_DESCRIPTION);
-//        exifDirectory.add(TiffTagConstants.TIFF_TAG_IMAGE_DESCRIPTION, url + ";" + pages + ";");
+//        rootDirectory.removeField(TiffTagConstants.TIFF_TAG_IMAGE_DESCRIPTION);
+//        rootDirectory.add(TiffTagConstants.TIFF_TAG_IMAGE_DESCRIPTION, url + ";" + pages + ";");
 
+        // Exif directory for niche fields like user comment
         TiffOutputDirectory exifDirectory = outputSet.getOrCreateExifDirectory();
         exifDirectory.removeField(ExifTagConstants.EXIF_TAG_USER_COMMENT);
-        exifDirectory.add(ExifTagConstants.EXIF_TAG_USER_COMMENT, url + ";" + pages + ";");
+        // Added ASCII to the beginning to prevent it being changed to XPComment randomly :/
+        exifDirectory.add(ExifTagConstants.EXIF_TAG_USER_COMMENT, "ASCII\0\0\0" + url + ";" + pages);
 
         File tempFile = new File(image.getParent(), "temp_" + image.getName());
         FileOutputStream fileOutputStream = new FileOutputStream(tempFile);

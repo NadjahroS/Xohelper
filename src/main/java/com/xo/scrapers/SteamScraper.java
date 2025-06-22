@@ -7,7 +7,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -33,11 +32,14 @@ public class SteamScraper {
     }
 
     /**
-     * Web-scraper for comments from the Steam Crossout find the treasure contests,
-     *
+     * Web-scraper for comments from the Steam Crossout find the treasure contests.
+     * After defining the starting variables it takes the HTML from the url.
+     * First it checks the date to generate a filename with and takes the coordinates from the HTML.
+     * Each loop it takes the coordinates from the subsequent pages.
+     * Finally, it sorts the coordinates, writes them to a file, from which a jpeg is made and metadata gets added to.
      * @param url The Steam url to be scraped
      */
-    public void getHtml(String url) {
+    public void getCoordinates(String url) {
         org.jsoup.nodes.Document doc = null;
         BufferedWriter writer = null;
 
@@ -133,6 +135,72 @@ public class SteamScraper {
 //          System.out.println(sortedCoordinates);
         }
         // System.out.println(doc);
+    }
+
+    public void updateCoordinates(String url, int start, String file) {
+        org.jsoup.nodes.Document doc = null;
+        BufferedWriter writer = null;
+
+        int page = start;
+        String baseUrl = url;
+
+        // Using set instead of array for automatic duplicate removal
+        Set<String> coordinates = new HashSet<>();
+
+        try {
+            while (true) {
+                progressText.append("Checking page: " + page);
+                progressText.append("\n");
+                System.out.println("Checking page: " + page);
+                // Reset url and append next comment page
+                if (page > 1) {
+                    url = baseUrl;
+                    url += ("?ctp=" + page);
+                }
+
+                doc = Jsoup.connect(url).userAgent("Mozilla").data("name", "jsoup").get();
+//              System.out.println(doc);
+
+                // Takes all comments from the html, stops the program if there are no comments left
+                Elements comments = doc.select(".commentthread_comment_text");
+                if (comments.isEmpty()) {
+                    progressText.append("Page:" + page + "had no more comments");
+                    System.out.println("Page:" + page + "had no more comments");
+                    break;
+                }
+                coordinates.addAll(utils.getCoordinates(comments));
+//                System.out.println(coordinates);
+                page++;
+                Thread.sleep(4000);
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            List<String> sortedCoordinates = new ArrayList<>(coordinates);
+            sortedCoordinates.sort((a, b) -> {
+                int letterCompare = Character.compare(a.charAt(0), b.charAt(0));
+                if (letterCompare != 0) return letterCompare;
+                // compare number part
+                int aNum = Integer.parseInt(a.substring(1));
+                int bNum = Integer.parseInt(b.substring(1));
+                return Integer.compare(aNum, bNum);
+            });
+
+            try {
+                if (writer != null) {
+                    for (String coord : sortedCoordinates) {
+                        writer.write(coord);
+                        writer.newLine();
+                    }
+                    writer.close();
+                }
+
+                gridGenerator.fillGrid(filename + ".txt");
+                gridGenerator.editMetadata("src/output/" + filename + ".jpeg", baseUrl, page-1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public String getFilename() {
