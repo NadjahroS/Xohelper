@@ -58,8 +58,8 @@ public class GUI extends JFrame {
 
         startButton.addActionListener(e -> {
             System.out.println(urlField.getText());
-            progressText.append("Checking url...");
-            progressText.append("(15 comments every ~4 seconds)");
+            progressText.append("Checking url..." + "\n");
+            progressText.append("(15 comments every ~4 seconds)" + "\n");
             steamScraper.getCoordinates(urlField.getText());
             addImage(steamScraper.getFilename());
         });
@@ -81,7 +81,7 @@ public class GUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 System.out.println(imageSelector.getSelectedItem());
                 try {
-                    progressText.append("Updating image...");
+                    progressText.append("Updating image..."  + "\n");
                     updateCoordinates(imageSelector.getSelectedItem());
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);

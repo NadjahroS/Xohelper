@@ -56,8 +56,7 @@ public class SteamScraper {
         try {
             while (true) {
 //                if (progressText != null) {
-//                    progressText.append("Checking page: " + page);
-//                    progressText.append("\n");
+//                    progressText.append("Checking page: " + page + "\n");
 //                }
                 System.out.println("Checking page: " + page);
 
@@ -105,7 +104,7 @@ public class SteamScraper {
                 Elements comments = doc.select(".commentthread_comment_text");
                 if (comments.isEmpty()) {
                     if (progressText != null) {
-                        progressText.append("Page: " + page + " had no more comments");
+                        progressText.append("Page: " + page + " had no more comments" + "\n"  + "\n");
                     }
                     System.out.println("Page: " + page + " had no more comments");
                     break;
