@@ -55,10 +55,10 @@ public class SteamScraper {
 
         try {
             while (true) {
-                if (progressText != null) {
-                    progressText.append("Checking page: " + page);
-                    progressText.append("\n");
-                }
+//                if (progressText != null) {
+//                    progressText.append("Checking page: " + page);
+//                    progressText.append("\n");
+//                }
                 System.out.println("Checking page: " + page);
 
                 // Reset url and append next comment page
@@ -94,7 +94,7 @@ public class SteamScraper {
                         String data;
                         while ((data = reader.readLine()) != null ) {
                             coordinates.add(data);
-                            System.out.println(data);
+//                            System.out.println(data);
                         }
                         reader.close();
                     }
@@ -105,9 +105,9 @@ public class SteamScraper {
                 Elements comments = doc.select(".commentthread_comment_text");
                 if (comments.isEmpty()) {
                     if (progressText != null) {
-                        progressText.append("Page:" + page + "had no more comments");
+                        progressText.append("Page: " + page + " had no more comments");
                     }
-                    System.out.println("Page:" + page + "had no more comments");
+                    System.out.println("Page: " + page + " had no more comments");
                     break;
                 }
                 coordinates.addAll(utils.getCoordinates(comments));

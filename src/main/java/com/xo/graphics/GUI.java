@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class GUI extends JFrame {
@@ -58,6 +59,7 @@ public class GUI extends JFrame {
         startButton.addActionListener(e -> {
             System.out.println(urlField.getText());
             progressText.append("Checking url...");
+            progressText.append("(15 comments every ~4 seconds)");
             steamScraper.getCoordinates(urlField.getText());
             addImage(steamScraper.getFilename());
         });
@@ -79,7 +81,8 @@ public class GUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 System.out.println(imageSelector.getSelectedItem());
                 try {
-                    readMetadata(imageSelector.getSelectedItem());
+                    progressText.append("Updating image...");
+                    updateCoordinates(imageSelector.getSelectedItem());
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -121,7 +124,7 @@ public class GUI extends JFrame {
     /**
      * Gets the image from a filename and adds it to the list of images and selector menu
      * Sets the new image as selected in the dropdown menu and in the image space
-     * @param filename The new single file to be added
+     * @param filename The image to be added
      */
     public void addImage(String filename) {
         try {
@@ -137,7 +140,14 @@ public class GUI extends JFrame {
         }
     }
 
-    public void readMetadata(Object file) throws IOException {
+    /**
+     * After getting the metadata from the image it goes through all the metadata fields.
+     * If it's the comment made by this program it takes the url and int after cleaning up the string.
+     * It updates the existing file with the same method by starting from the last checked page.
+     * @param file The image to update
+     * @throws IOException
+     */
+    public void updateCoordinates(Object file) throws IOException {
         File image = new File("src/output/" + file);
         ImageMetadata metadata = Imaging.getMetadata(image);
         JpegImageMetadata jpegImageMetadata = (JpegImageMetadata) metadata;
@@ -147,11 +157,12 @@ public class GUI extends JFrame {
             if (exif != null) {
                 List<TiffField> fields = exif.getAllFields();
                 for (TiffField field : fields) {
-                    System.out.println(field.getTagName() + ": " + field.getValueDescription());
+//                    System.out.println(field.getTagName() + ": " + field.getValueDescription());
                     if (field.getTag() == ExifTagConstants.EXIF_TAG_USER_COMMENT.tag) {
-                        System.out.println("✅ Found USER_COMMENT: " + field.getValueDescription().substring(9));
+                        String[] values = field.getValueDescription().substring(9).replaceAll("'", "").split(";");
+                        steamScraper.getCoordinates(values[0], Integer.parseInt(values[1]));
+//                        System.out.println(Arrays.toString(values));
                     }
-//                    System.out.println(field.getTagName());
                 }
             }
         }
